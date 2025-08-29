@@ -14,8 +14,7 @@ public class Work {
     private String authors;
     private String subjects;
 
-    public Work(Long id, String title, WorkType workType, String details, String authors, String subjects) {
-        this.id = id;
+    public Work(String title, WorkType workType, String details, String authors, String subjects) {
         this.title = title;
         this.workType = workType;
         this.details = details;
