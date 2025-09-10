@@ -1,5 +1,6 @@
 package dk.teqs.library.catalog.controller;
 
+import dk.teqs.library.catalog.dto.WorkDto;
 import dk.teqs.library.catalog.model.Work;
 import dk.teqs.library.catalog.service.WorkService;
 import org.apache.coyote.Response;
@@ -20,26 +21,28 @@ public class WorkController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Work>> getAllWorks() {
-        List<Work> works = workService.getAllWorks();
+    public ResponseEntity<List<WorkDto>> getAllWorks() {
+        List<WorkDto> works = workService.getAllWorks();
         return ResponseEntity.ok(works);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Work> getWorkById(@PathVariable Long id){
-        Work work = workService.getWorkById(id);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(work);
+    public ResponseEntity<WorkDto> getWorkById(@PathVariable Long id){
+        try {
+           return ResponseEntity.status(HttpStatus.ACCEPTED).body(workService.getWorkById(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
     @PostMapping()
-    public ResponseEntity<Work> addWork(@RequestBody Work work){
-        Work newWork = workService.createWork(work);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newWork);
+    public ResponseEntity<WorkDto> addWork(@RequestBody WorkDto workDto){
+        return ResponseEntity.status(HttpStatus.CREATED).body(workService.createWork(workDto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Work> updateWork(@PathVariable Long id, @RequestBody Work work){
-        Work newWork = workService.updateWork(id,work);
+    public ResponseEntity<WorkDto> updateWork(@PathVariable Long id, @RequestBody WorkDto workDto){
+        workService.updateWork(id,workDto);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
@@ -50,8 +53,8 @@ public class WorkController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Work>> searchWork(@RequestParam(required = false) String title){
-        List<Work> works = workService.searchWorks(title);
+    public ResponseEntity<List<WorkDto>> searchWork(@RequestParam(required = false) String title){
+        List<WorkDto> works = workService.searchWorks(title);
         return ResponseEntity.ok(works);
     }
 }
