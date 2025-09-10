@@ -1,6 +1,12 @@
 package dk.teqs.library.catalog.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Work {
@@ -11,15 +17,22 @@ public class Work {
     @Enumerated(EnumType.STRING)
     private WorkType workType;
     private String details;
-    private String authors;
-    private String subjects;
 
-    public Work(String title, WorkType workType, String details, String authors, String subjects) {
+    @ManyToMany
+    @JsonManagedReference
+    private Set<Author> authors = new HashSet<>();
+
+    @ManyToMany
+    @JsonManagedReference
+    private List<Subject> subjects = new ArrayList<>();
+
+    @OneToMany(mappedBy = "work", cascade = CascadeType.PERSIST)
+    private List<Edition> editions = new ArrayList<>();
+
+    public Work(String title, WorkType workType, String details) {
         this.title = title;
         this.workType = workType;
         this.details = details;
-        this.authors = authors;
-        this.subjects = subjects;
     }
 
     public Work(){}
@@ -56,19 +69,53 @@ public class Work {
         this.details = details;
     }
 
-    public String getAuthors() {
+    public Set<Author> getAuthors(){
         return authors;
     }
 
-    public void setAuthors(String authors) {
-        this.authors = authors;
+    public void addAuthor(Author author){
+        authors.add(author);
     }
 
-    public String getSubjects() {
+    public void removeAuthor(Author author){
+        authors.remove(author);
+    }
+
+    public List<Subject> getSubjects() {
         return subjects;
     }
 
-    public void setSubjects(String subjects) {
-        this.subjects = subjects;
+    public void addSubject(Subject subject) {
+        subjects.add(subject);
+    }
+
+    public void removeSubject(Subject subject){
+        subjects.remove(subject);
+    }
+
+    public void clearSubjects(){
+        for (Subject subject : new ArrayList<>(subjects)){
+            removeSubject(subject);
+        }
+    }
+
+    public List<Edition> getEditions() {
+        return editions;
+    }
+
+    public void addEdition(Edition edition){
+        editions.add(edition);
+        edition.setWork(this);
+    }
+
+    public void removeEdition(Edition edition){
+        editions.remove(edition);
+        edition.setWork(null);
+    }
+
+    public void clearEditions(){
+        for (Edition edition : new ArrayList<>(editions)){
+            removeEdition(edition);
+        }
     }
 }
